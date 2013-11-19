@@ -27,7 +27,7 @@ pipeline = Pipeline(
   SetItemKey("item_name", StringConfigValue(name="example.item_name", title="Item name", default="1083030")),
   PrintItem(),
   ExternalProcess("Echo", [ "echo", "1234" ]),
-  ExternalProcess("sleep", [ "sleep", NumberConfigValue(name="example.sleep", title="Time to sleep", description="The example project will sleep n seconds.", min=1, max=15, default="5").value]),
+  ExternalProcess("sleep", [ "sleep", str(NumberConfigValue(name="example.sleep", title="Time to sleep", description="The example project will sleep n seconds.", min=1, max=15, default="5").value)]),
   ExternalProcess("pwd", [ "pwd" ]),
   PrintItem()
 )
