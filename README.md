@@ -138,6 +138,8 @@ If you're sure that you followed the steps to install `seesaw`, permissions on y
 
 If you notice a bug and want to file a bug report, please use the GitHub issues tracker.
 
+Are you a developer? Help write code for us! Look at our [developer documentation](http://archiveteam.org/index.php?title=Dev) for details.
+
 ### Other problems
 
 Have an issue not listed here? Join us on IRC and ask! We can be found at irc.efnet.org #{{IRC_CHANNEL}}.
