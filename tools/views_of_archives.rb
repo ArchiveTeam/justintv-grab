@@ -55,7 +55,10 @@ class Worker
     return unless json
 
     # For each archive, build a [archive, page URI] pair.
-    pairs = json.zip(page_uris(json))
+    uris = page_uris(json, channel_api_uri)
+    return unless uris
+
+    pairs = json.zip(uris)
 
     # Visit each page, extract the view count.
     summaries = pairs.map do |obj, page_uri|
@@ -79,7 +82,7 @@ class Worker
     data = r { |c| c.get(uri) }
 
     if data
-      JSON.parse(data).map { |d| puts d; Summary.from_json(d) }
+      JSON.parse(data).map { |d| Summary.from_json(d) }
     end
   end
 
@@ -96,11 +99,17 @@ class Worker
     end.tap { sleep (1 + (rand * 5)) }
   end
 
-  def page_uris(json)
+  def page_uris(json, channel_api_uri)
     json.map do |obj|
-      channel_name = obj['stream_name'].sub(/.+_user_/, '')
-      broadcast_id = obj['id']
+      channel_name = if obj['stream_name']
+                       obj['stream_name'].sub(/.+_user_/, '')
+                     else
+                       channel_api_uri.path.split('/').last.sub('.json', '').tap do |guess|
+                         warn "Unable to find stream name in JSON for #{channel_api_uri}; guessing #{guess}"
+                       end
+                     end
 
+      broadcast_id = obj['id']
       URI("http://www.justin.tv/#{channel_name}/b/#{broadcast_id}")
     end
   end
