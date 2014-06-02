@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    celluloid (0.15.2)
+      timers (~> 1.1.0)
+    connection_pool (2.0.0)
+    json (1.8.1)
+    net-http-persistent (2.9.4)
+    redis (3.0.7)
+    timers (1.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  celluloid
+  connection_pool
+  json
+  net-http-persistent
+  redis
