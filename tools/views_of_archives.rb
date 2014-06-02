@@ -101,7 +101,7 @@ class Worker
 
   def page_uris(json, channel_api_uri)
     json.map do |obj|
-      channel_name = if obj['stream_name']
+      channel_name = if obj['stream_name'] && !obj['stream_name'].strip.empty?
                        obj['stream_name'].sub(/.+_user_/, '')
                      else
                        channel_api_uri.path.split('/').last.sub('.json', '').tap do |guess|
