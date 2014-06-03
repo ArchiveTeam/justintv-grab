@@ -96,7 +96,7 @@ class Worker
         sleep 300
         nil
       end
-    end.tap { sleep (1 + (rand * 5)) }
+    end.tap { sleep (WORKERS + (rand * 5)) }
   end
 
   def page_uris(json, channel_api_uri)
