@@ -118,11 +118,19 @@ class Worker
     body = get_with_retry(page_uri) do |resp|
       case resp
       when Net::HTTPSuccess; resp.body
+
+      # As far as I can tell, this actually means "page not found", so we'll
+      # just roll with it
+      when Net::HTTPRedirection; :redirected
       end
     end
 
-    doc = Nokogiri.HTML(body)
-    (doc/'#archive_views_count').text.to_i
+    if body == :redirected
+      nil
+    else
+      doc = Nokogiri.HTML(body)
+      (doc/'#archive_views_count').text.to_i
+    end
   end
 
   def get_with_retry(uri)
