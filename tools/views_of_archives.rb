@@ -185,30 +185,45 @@ WP = Worker.pool(size: WORKERS)
 
 # ---------------------------------------------------------------------------
 
-if !ARGV[0]
-  puts "Usage: #$0 URI_LIST"
-  exit 1
-end
-
-jobs = []
-lines = File.read(ARGV[0]).split("\n")
-lines.shuffle.each do |l|
-  uri = URI(l)
-
-  jobs << [l, WP.future(:discover, uri)]
-end
-
+active = []
 log = Logger.new($stderr)
 
-jobs.each do |l, future|
-  summaries = future.value
+loop do
+  status = WORKERS.times do
+    item = RP.with do |c|
+      it = c.rpoplpush('pending', 'working')
+      c.srem('pending-set', it)
+      c.sadd('working-set', it)
+      it
+    end
 
-  if !summaries
-    log.error "#{l} failed to resolve"
-    next
+    break :no_item unless item
+
+    active << [item, WP.future(:discover, URI(item))]
   end
 
-  summaries.each do |s|
-    $stdout.puts "#{s.views}\t#{s.archive_video_file}\t#{s.page_uri}"
+  active.each do |l, future|
+    summaries = future.value
+
+    if !summaries
+      log.error "#{l} failed to resolve"
+      next
+    end
+
+    summaries.each do |s|
+      $stdout.puts "#{s.views}\t#{s.archive_video_file}\t#{s.page_uri}"
+    end
+
+    RP.with do |c|
+      c.srem('working-set', l)
+      c.sadd('done-set', l)
+      c.lrem('working', 1, l)
+    end
+  end
+
+  active.clear
+
+  if status == :no_item
+    break
   end
 end
