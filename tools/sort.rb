@@ -3,7 +3,7 @@ require 'json'
 
 require File.expand_path('../summary', __FILE__)
 
-r = Redis.new
+r = Redis.new(url: 'redis://localhost:6380')
 
 cursor = 0
 summaries = []
@@ -25,16 +25,16 @@ loop do
   end
 
   if summaries.length % 100 == 0
-    print summaries.length
-    print '...'
+    $stderr.print summaries.length
+    $stderr.print '...'
   end
 end
 
-print summaries.length
-puts
-puts
+$stderr.print summaries.length
+$stderr.puts
+$stderr.puts
 
-summaries.sort_by(&:views).reverse.each do |summary|
+summaries.sort_by { |s| s.views || 0 }.reverse.each do |summary|
   video_url = summary.archive_video_file
 
   puts "#{summary.views.to_i}\t#{video_url}\t#{summary.page_uri}"
