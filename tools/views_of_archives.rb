@@ -11,6 +11,8 @@ require 'json'
 require 'pp'
 require 'oauth'
 
+require File.expand_path('../summary', __FILE__)
+
 WORKERS = 2
 RETRIES = 10
 
@@ -27,25 +29,6 @@ OAUTH_CONSUMER_SECRET = ENV['OAUTH_CONSUMER_SECRET']
 
 if !OAUTH_CONSUMER_KEY || !OAUTH_CONSUMER_SECRET
   abort "OAUTH_CONSUMER_KEY or OAUTH_CONSUMER_SECRET not defined"
-end
-
-class Summary < Struct.new(:views, :archive_object, :page_uri)
-  def self.from_json(json)
-    new(json['views'],
-        json['archive_object'],
-        json['page_uri'])
-  end
-
-  def archive_video_file
-    archive_object['video_file_url']
-  end
-
-  def to_json(*args)
-    { views: views,
-      archive_object: archive_object,
-      page_uri: page_uri
-    }.to_json(*args)
-  end
 end
 
 class Worker
