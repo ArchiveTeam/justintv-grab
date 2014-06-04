@@ -9,7 +9,7 @@ cursor = 0
 summaries = []
 
 loop do
-  cursor, results = r.scan(cursor, count: 100)
+  cursor, results = r.scan(cursor, count: 100, match: 'http*')
 
   if cursor.to_i == 0
     break
