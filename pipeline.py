@@ -58,8 +58,7 @@ if not WGET_LUA:
 VERSION = "20140603.50"
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'justintv'
-# TRACKER_HOST = 'tracker.archiveteam.org'
-TRACKER_HOST = 'localhost:9080'
+TRACKER_HOST = 'tracker.archiveteam.org'
 BOUNCER_HOST = 'http://davenport.ninjawedding.org:5985/'
 
 
