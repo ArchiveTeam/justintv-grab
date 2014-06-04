@@ -9,6 +9,7 @@ require 'logger'
 require 'nokogiri'
 require 'json'
 require 'pp'
+require 'oauth'
 
 WORKERS = 2
 RETRIES = 10
@@ -19,6 +20,13 @@ end
 
 HP = ConnectionPool.new(size: WORKERS) do
   Net::HTTP::Persistent.new 'justouttv'
+end
+
+OAUTH_CONSUMER_KEY = ENV['OAUTH_CONSUMER_KEY']
+OAUTH_CONSUMER_SECRET = ENV['OAUTH_CONSUMER_SECRET']
+
+if !OAUTH_CONSUMER_KEY || !OAUTH_CONSUMER_SECRET
+  abort "OAUTH_CONSUMER_KEY or OAUTH_CONSUMER_SECRET not defined"
 end
 
 class Summary < Struct.new(:views, :archive_object, :page_uri)
@@ -87,7 +95,7 @@ class Worker
   end
 
   def channel_json(uri)
-    get_with_retry(uri) do |resp|
+    oauth_get_with_retry(uri) do |resp|
       case resp
       when Net::HTTPSuccess; JSON.parse(resp.body)
       when Net::HTTPNotFound; []
@@ -133,6 +141,31 @@ class Worker
     end
   end
 
+  def oauth_get_with_retry(uri)
+    retries = 0
+
+    while retries < RETRIES
+      consumer = OAuth::Consumer.new(OAUTH_CONSUMER_KEY,
+                                     OAUTH_CONSUMER_SECRET,
+                                     site: 'http://api.justin.tv',
+                                     http_method: 'get')
+
+      access_token = OAuth::AccessToken.new(consumer)
+      resp = access_token.get(uri.path)
+      ret = yield resp
+
+      if ret
+        info "OAuth GET #{uri} #{resp.code}"
+        return ret
+      else
+        retries += 1
+        sleep_time = 1.5 ** retries
+        info "OAuth GET #{uri} #{resp.code}: failed, sleeping #{sleep_time} sec before next retry"
+        sleep sleep_time
+      end
+    end
+  end
+
   def get_with_retry(uri)
     retries = 0
 
@@ -149,7 +182,7 @@ class Worker
         else
           retries += 1
           sleep_time = 1.5 ** retries
-          info "GET #{uri} #{resp.code}: failed, sleeping #{sleep_time} before next retry"
+          info "GET #{uri} #{resp.code}: failed, sleeping #{sleep_time} sec before next retry"
           sleep sleep_time
         end
       end
