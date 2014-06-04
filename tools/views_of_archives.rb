@@ -27,8 +27,11 @@ end
 OAUTH_CONSUMER_KEY = ENV['OAUTH_CONSUMER_KEY']
 OAUTH_CONSUMER_SECRET = ENV['OAUTH_CONSUMER_SECRET']
 
+$USE_OAUTH = true
+
 if !OAUTH_CONSUMER_KEY || !OAUTH_CONSUMER_SECRET
-  abort "OAUTH_CONSUMER_KEY or OAUTH_CONSUMER_SECRET not defined"
+  print "Using unauthenticated mode"
+  $USE_OAUTH = false
 end
 
 class Worker
@@ -78,16 +81,29 @@ class Worker
   end
 
   def channel_json(uri)
-    oauth_get_with_retry(uri) do |resp|
-      case resp
-      when Net::HTTPSuccess; JSON.parse(resp.body)
-      when Net::HTTPNotFound; []
-      when Net::HTTPBadRequest then
-        error "GET #{uri} #{resp.code}: rate limit exceeded; sleeping for 300 sec"
-        sleep 300
-        nil
-      end
-    end.tap { sleep (WORKERS + (rand * 5)) }
+    if $USE_OAUTH
+      oauth_get_with_retry(uri) do |resp|
+        case resp
+        when Net::HTTPSuccess; JSON.parse(resp.body)
+        when Net::HTTPNotFound; []
+        when Net::HTTPBadRequest then
+          error "GET #{uri} #{resp.code}: rate limit exceeded; sleeping for 300 sec"
+          sleep 300
+          nil
+        end
+      end.tap { sleep (WORKERS + (rand * 5)) }
+    else
+      get_with_retry(uri) do |resp|
+        case resp
+        when Net::HTTPSuccess; JSON.parse(resp.body)
+        when Net::HTTPNotFound; []
+        when Net::HTTPBadRequest then
+          error "GET #{uri} #{resp.code}: rate limit exceeded; sleeping for 300 sec"
+          sleep 300
+          nil
+        end
+      end.tap { sleep (WORKERS + (rand * 5)) }
+    end
   end
 
   def page_uris(json, channel_api_uri)
