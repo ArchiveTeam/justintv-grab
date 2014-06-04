@@ -1,6 +1,6 @@
 require 'redis'
 
-r = Redis.new('redis://localhost:6381/0')
+r = Redis.new(url: 'redis://localhost:6381/0')
 
 r.pipelined do
   $stdin.each_line do |line|
