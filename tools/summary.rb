@@ -10,7 +10,7 @@ class Summary < Struct.new(:views, :archive_object, :page_uri)
   end
 
   def views_num
-    views.gsub(',', '').to_i
+    views.to_s.gsub(',', '').to_i
   end
 
   def to_json(*args)

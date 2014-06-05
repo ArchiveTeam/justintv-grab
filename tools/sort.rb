@@ -39,5 +39,5 @@ $stderr.puts
 summaries.sort_by { |s| s.views_num }.select { |s| s.views_num >= threshold }.reverse.each do |summary|
   video_url = summary.archive_video_file
 
-  puts "#{summary.views.to_i}\t#{video_url}\t#{summary.page_uri}"
+  puts "#{summary.views_num}\t#{video_url}\t#{summary.page_uri}"
 end
