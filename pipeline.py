@@ -133,11 +133,19 @@ LUA_SHA1 = get_hash(os.path.join(CWD, 'justintv.lua'))
 
 def stats_id_function(item):
     # NEW for 2014! Some accountability hashes and stats.
-    return {
+    d = {
         'pipeline_hash': PIPELINE_SHA1,
         'lua_hash': LUA_SHA1,
         'python_version': sys.version,
     }
+
+    # Extra specific for justintv project
+    status_file = os.path.join(item["item_dir"], "status_info.txt")
+    if os.path.exists(status_file):
+        with open(status_file) as f:
+            d['video_status_code'] = int(f.read())
+
+    return d
 
 
 class Bouncer(SimpleTask):
@@ -220,6 +228,7 @@ pipeline = Pipeline(
         max_tries=5,
         accept_on_exit_code=[0, 8],
         env={
+            "item_dir": ItemValue("item_dir")
         }
     ),
     PrepareStatsForTracker(
