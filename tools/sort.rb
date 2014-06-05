@@ -5,6 +5,8 @@ require File.expand_path('../summary', __FILE__)
 
 r = Redis.new(url: 'redis://localhost:6380')
 
+threshold = ARGV[0].to_i
+
 cursor = 0
 summaries = []
 
@@ -34,7 +36,7 @@ $stderr.print summaries.length
 $stderr.puts
 $stderr.puts
 
-summaries.sort_by { |s| s.views || 0 }.reverse.each do |summary|
+summaries.sort_by { |s| s.views_num }.select { |s| s.views_num >= threshold }.reverse.each do |summary|
   video_url = summary.archive_video_file
 
   puts "#{summary.views.to_i}\t#{video_url}\t#{summary.page_uri}"

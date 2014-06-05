@@ -9,6 +9,10 @@ class Summary < Struct.new(:views, :archive_object, :page_uri)
     archive_object['video_file_url']
   end
 
+  def views_num
+    views.to_i
+  end
+
   def to_json(*args)
     { views: views,
       archive_object: archive_object,
