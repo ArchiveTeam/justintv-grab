@@ -8,5 +8,6 @@ r.pipelined do
     item = page_url.sub('http://www.justin.tv/', '').chomp
     
     r.set item, vid_url
+    puts item
   end
 end
