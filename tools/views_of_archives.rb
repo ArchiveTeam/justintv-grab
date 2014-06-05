@@ -136,7 +136,7 @@ class Worker
       nil
     else
       doc = Nokogiri.HTML(body)
-      (doc/'#archive_views_count').text.to_i
+      (doc/'#archive_views_count').text
     end
   end
 
