@@ -214,7 +214,7 @@ project = Project(
         <h2>Justin.tv <span class="links"><a href="http://justin.tv/">Justin.tv</a> &middot; <a href="http://tracker.archiveteam.org/justintv/">Leaderboard</a></span></h2>
         <p>Justin.tv is deleting all archives sometime in the next week.  We DPoS.</p>
     """,
-    utc_deadline=datetime.datetime(2014, 6, 8, 0, 0, 0)
+    utc_deadline=datetime.datetime(2014, 6, 15, 0, 0, 0)
 )
 
 pipeline = Pipeline(
